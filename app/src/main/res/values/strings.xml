@@ -3,6 +3,6 @@
 
 
     <string name="retry">Retry</string>
-    <string name="article_error">An error occurred while loading the NYTimes articles</string>
+    <string name="article_error">An error occurred while loading NYTimes articles</string>
 
 </resources>

@@ -28,6 +28,13 @@ class ArticleListAdapter() :
         holder.bind(articleList[position])
     }
 
+    override fun getItemId(position: Int): Long {
+        return super.getItemId(position)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return super.getItemViewType(position)
+    }
     override fun getItemCount(): Int {
         return if (::articleList.isInitialized) {
             articleList.size

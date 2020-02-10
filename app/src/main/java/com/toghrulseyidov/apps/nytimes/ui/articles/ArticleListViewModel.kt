@@ -95,6 +95,8 @@ class ArticleListViewModel(private val articleDao: ArticleDao) :
 
     private fun onRetrievePostListError(error: Throwable) {
         errorMessage.value = R.string.article_error
+
+        error.printStackTrace()
 //        if(error.localizedMessage)
     }
 }

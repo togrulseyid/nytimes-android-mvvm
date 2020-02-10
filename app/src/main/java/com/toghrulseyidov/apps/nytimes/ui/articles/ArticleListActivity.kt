@@ -7,12 +7,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
 import com.toghrulseyidov.apps.nytimes.R
 import com.toghrulseyidov.apps.nytimes.databinding.ActivityArticleListBinding
 
 
-class ArticleListActivity : AppCompatActivity(){
+class ArticleListActivity : AppCompatActivity() {//}, SwipeRefreshLayout.OnRefreshListener{
 
     private lateinit var binding: ActivityArticleListBinding
     private lateinit var viewModel: ArticleListViewModel
@@ -50,5 +51,9 @@ class ArticleListActivity : AppCompatActivity(){
     private fun hideError() {
         errorSnackbar?.dismiss()
     }
+
+//    override fun onRefresh() {
+//        //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//    }
 
 }

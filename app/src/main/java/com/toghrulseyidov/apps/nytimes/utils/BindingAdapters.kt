@@ -1,14 +1,16 @@
 package com.toghrulseyidov.apps.nytimes.utils
 
 import android.content.ContextWrapper
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.appcompat.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.BindingAdapter
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import com.toghrulseyidov.apps.nytimes.R
 
@@ -44,10 +46,12 @@ fun loadImage(view: ImageView, url: MutableLiveData<String>?) {
         url.observe(parentActivity, Observer { value ->
             picasso
                 .load(value)
+                .tag(parentActivity.applicationContext)
                 .placeholder(R.drawable.image_not_found)
                 .into(view)
         })
-
+    } else {
+        view.visibility = View.INVISIBLE
     }
 }
 
