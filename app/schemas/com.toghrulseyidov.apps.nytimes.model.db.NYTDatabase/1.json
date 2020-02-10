@@ -1,0 +1,153 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "55199ceb25e2a4dc475b9ad6b7868faa",
+    "entities": [
+      {
+        "tableName": "articles",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` TEXT NOT NULL, `documentType` TEXT, `multimedia` TEXT, `newsDesk` TEXT, `printPage` INTEGER, `pubDate` TEXT NOT NULL, `score` INTEGER, `snippet` TEXT, `leadParagraph` TEXT, `source` TEXT, `typeOfMaterial` TEXT, `uri` TEXT, `web_url` TEXT, `word_count` INTEGER, `content_kicker` TEXT, `kicker` TEXT, `main` TEXT, `name` TEXT, `print_headline` TEXT, `seo` TEXT, `sub` TEXT, PRIMARY KEY(`_id`))",
+        "fields": [
+          {
+            "fieldPath": "_id",
+            "columnName": "_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "documentType",
+            "columnName": "documentType",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "multimedia",
+            "columnName": "multimedia",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "newsDesk",
+            "columnName": "newsDesk",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "printPage",
+            "columnName": "printPage",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pubDate",
+            "columnName": "pubDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "score",
+            "columnName": "score",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "snippet",
+            "columnName": "snippet",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "leadParagraph",
+            "columnName": "leadParagraph",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "typeOfMaterial",
+            "columnName": "typeOfMaterial",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "uri",
+            "columnName": "uri",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "web_url",
+            "columnName": "web_url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "word_count",
+            "columnName": "word_count",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "headline.content_kicker",
+            "columnName": "content_kicker",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "headline.kicker",
+            "columnName": "kicker",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "headline.main",
+            "columnName": "main",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "headline.name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "headline.print_headline",
+            "columnName": "print_headline",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "headline.seo",
+            "columnName": "seo",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "headline.sub",
+            "columnName": "sub",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"55199ceb25e2a4dc475b9ad6b7868faa\")"
+    ]
+  }
+}

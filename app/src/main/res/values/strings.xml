@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">NYTimes App</string>
+
+
+    <string name="retry">Retry</string>
+    <string name="article_error">An error occurred while loading the NYTimes articles</string>
+
+</resources>
