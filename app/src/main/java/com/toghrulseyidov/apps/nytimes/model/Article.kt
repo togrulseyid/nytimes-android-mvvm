@@ -38,7 +38,11 @@ data class Article(
     val web_url: String?,
     @SerializedName("word_count")
     val word_count: Int?
-)
+) {
+    override fun toString(): String {
+        return "Article(_id='$_id', headline=$headline, pubDate='$pubDate', snippet=$snippet)"
+    }
+}
 
 //https://developer.nytimes.com/docs/articlesearch-product/1/types/Multimedia
 data class Multimedia(
@@ -104,4 +108,10 @@ data class Headline(
     val print_headline: String?,
     val seo: String?,
     val sub: String?
-)
+
+
+) {
+    override fun toString(): String {
+        return "Headline(main=$main, print_headline=$print_headline)"
+    }
+}

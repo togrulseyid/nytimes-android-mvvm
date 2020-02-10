@@ -2,6 +2,7 @@ package com.toghrulseyidov.apps.nytimes.ui.articles
 
 import android.util.Log
 import android.view.View
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.MutableLiveData
 import com.toghrulseyidov.apps.nytimes.R
 import com.toghrulseyidov.apps.nytimes.core.CoreViewModel
@@ -27,19 +28,36 @@ class ArticleListViewModel(private val articleDao: ArticleDao) :
     val errorMessage: MutableLiveData<Int> = MutableLiveData()
 
     var searchKeyword: String? = null
+//    val searchKeyword: MutableLiveData<String> = MutableLiveData()
 
     var paginationIndex: Int = 0
 
     val errorClickListener =
         View.OnClickListener { loadArticlesByKeyword(searchKeyword, paginationIndex) }
 
+    val onSearchListener =
+        object : SearchView.OnQueryTextListener {
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                Log.d("POX", "text changed: $newText")
+                if (newText.length > 2) {
+                    loadArticlesByKeyword(newText, paginationIndex)
+                }
+                return false
+            }
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                Log.d("POX", "text submitted: $query")
+                loadArticlesByKeyword(query, paginationIndex)
+                // task HERE
+                return false
+            }
+        }
+
     private lateinit var subscription: Disposable
 
     init {
-        if (searchKeyword == null) {
-            searchKeyword = "Azerbaijan"
-        }
-        loadArticlesByKeyword(searchKeyword, paginationIndex)
+        loadArticlesByKeyword(null, 0)
     }
 
     override fun onCleared() {
@@ -48,52 +66,65 @@ class ArticleListViewModel(private val articleDao: ArticleDao) :
     }
 
     private fun loadArticlesByKeyword(searchKeyword: String?, paginationIndex: Int) {
-        if (searchKeyword != null) {
-            subscription = Observable
-                .fromCallable { articleDao.all }
-                .concatMap { dbArticleList ->
-                    if (dbArticleList.isEmpty())
-                        articleApi.getArticles(
-                            searchKeyword,
-                            paginationIndex,
-                            "newest",
-                            "DdgZsx0tRifDd82nFpxjLiiR8fAF9CFG" // TODO: Move to properties
-                        ).concatMap { apiArticleList ->
-                            apiArticleList
-                                .response!!
-                                .docs
-                                .toTypedArray()
-                                .forEach { article ->
-                                    Log.d("POX", article.toString())
-                                }
+        Log.d("POX", "searchKeyword: $searchKeyword $paginationIndex")
 
-                            articleDao.insertAll(*apiArticleList.response.docs.toTypedArray())
-                            Observable.just(apiArticleList.response.docs)
-                        }
-                    else
+        subscription = Observable
+            .fromCallable { articleDao.all }
+            .concatMap { dbArticleList ->
+                if (dbArticleList.isEmpty()) {
+                    loader(searchKeyword!!)
+                } else {
+                    Observable.just(dbArticleList)
+                    if (searchKeyword != null) {
+                        loader(searchKeyword)
+                    } else {
                         Observable.just(dbArticleList)
+                    }
                 }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    loadingVisibility.value = View.VISIBLE
-                    errorMessage.value = null
+            }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                loadingVisibility.value = View.VISIBLE
+                errorMessage.value = null
+            }
+            .doOnTerminate { loadingVisibility.value = View.GONE }
+            .subscribe(
+                { result -> onRetrieveArticleListSuccess(result) },
+                { error -> onRetrieveArticleListError(error) }
+            )
+    }
+
+    private fun loader(searchKeyword: String): Observable<List<Article>> {
+        return articleApi.getArticles(
+            searchKeyword,
+            paginationIndex,
+            "newest",
+            "DdgZsx0tRifDd82nFpxjLiiR8fAF9CFG" // TODO: Move to properties
+        ).concatMap { apiArticleList ->
+            apiArticleList
+                .response!!
+                .docs
+                .toTypedArray()
+                .forEach { article ->
+                    Log.d("POX-X", article.toString())
                 }
-                .doOnTerminate { loadingVisibility.value = View.GONE }
-                .subscribe(
-                    { result -> onRetrievePostListSuccess(result) },
-                    { error -> onRetrievePostListError(error) }
-                )
+
+            articleDao.insertAll(*apiArticleList.response.docs.toTypedArray())
+            Observable.just(apiArticleList.response.docs)
         }
-
     }
 
-    private fun onRetrievePostListSuccess(postList: List<Article>) {
-        articleListAdapter.updateArticleList(postList)
-        paginationIndex++
+    private fun onRetrieveArticleListSuccess(articleList: List<Article>) {
+        articleListAdapter.updateArticleList(articleList)
+        Log.d("POX", "onRetrieveArticleListSuccess: ${articleList.size}")
+        articleList.forEach {
+            println("onRetrieveArticleListSuccess: $it")
+        }
+//        paginationIndex++
     }
 
-    private fun onRetrievePostListError(error: Throwable) {
+    private fun onRetrieveArticleListError(error: Throwable) {
         errorMessage.value = R.string.article_error
 
         error.printStackTrace()

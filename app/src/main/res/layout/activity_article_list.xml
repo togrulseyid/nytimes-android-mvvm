@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.toghrulseyidov.apps.nytimes.ui.articles.ArticleListViewModel" />
@@ -21,15 +23,26 @@
             app:layout_constraintTop_toTopOf="parent"
             app:mutableVisibility="@{viewModel.getLoadingVisibility()}" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/article_list"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/article_swipe_refresh"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:adapter="@{viewModel.getArticleListAdapter()}"
+            android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:barrierDirection="bottom"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/article_list"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:adapter="@{viewModel.getArticleListAdapter()}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

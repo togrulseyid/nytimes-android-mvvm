@@ -8,26 +8,14 @@ abstract class PaginationListener(var layoutManager: LinearLayoutManager) :
     RecyclerView.OnScrollListener() {
     val PAGE_START = 1
 
-
-//    @NonNull
-//    private var layoutManager: LinearLayoutManager? = null
-
-
     /**
      * Set scrolling threshold here (for now i'm assuming 10 item in one page)
      */
     private val PAGE_SIZE = 10
 
-//    /**
-//     * Supporting only LinearLayoutManager for now.
-//     */
-//    fun PaginationListener(layoutManager: LinearLayoutManager) {
-//        this.layoutManager = layoutManager
-//    }
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
-
 
         val visibleItemCount = layoutManager.childCount
         val totalItemCount = layoutManager.itemCount
@@ -42,7 +30,6 @@ abstract class PaginationListener(var layoutManager: LinearLayoutManager) :
                 loadMoreItems();
             }
         }
-
 
     }
 
