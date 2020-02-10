@@ -1,5 +1,6 @@
 package com.toghrulseyidov.apps.nytimes.ui.articles
 
+import android.content.res.Resources
 import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.SearchView
@@ -9,10 +10,12 @@ import com.toghrulseyidov.apps.nytimes.core.CoreViewModel
 import com.toghrulseyidov.apps.nytimes.model.Article
 import com.toghrulseyidov.apps.nytimes.model.ArticleDao
 import com.toghrulseyidov.apps.nytimes.network.ArticleApi
+import com.toghrulseyidov.apps.nytimes.utils.HTTP_ERROR_429
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.lang.Exception
 import javax.inject.Inject
 
 class ArticleListViewModel(private val articleDao: ArticleDao) :
@@ -42,6 +45,11 @@ class ArticleListViewModel(private val articleDao: ArticleDao) :
                 Log.d("POX", "text changed: $newText")
                 if (newText.length > 2) {
                     loadArticlesByKeyword(newText, paginationIndex)
+                    try {
+                        Thread.sleep(50)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
                 return false
             }
@@ -127,7 +135,14 @@ class ArticleListViewModel(private val articleDao: ArticleDao) :
     private fun onRetrieveArticleListError(error: Throwable) {
         errorMessage.value = R.string.article_error
 
-        error.printStackTrace()
+//        error.printStackTrace()
+
+        if (error is retrofit2.adapter.rxjava2.HttpException) {
+            println(error.localizedMessage)
+            if (error.message == HTTP_ERROR_429) {
+                errorMessage.value = R.string.article_error_code_message
+            }
+        }
 //        if(error.localizedMessage)
     }
 }

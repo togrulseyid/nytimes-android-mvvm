@@ -6,5 +6,6 @@
 
     <string name="retry">Retry</string>
     <string name="article_error">An error occurred while loading NYTimes articles</string>
+    <string name="article_error_code_message">HTTP Too Many Requests, slow down</string>
 
 </resources>

@@ -6,3 +6,6 @@ const val API_BASE_URL: String = "https://api.nytimes.com/svc/search/v2/"
 
 /** The Website base URL for showing images */
 const val SITE_BASE_URL: String = "https://www.nytimes.com/"
+
+
+const val HTTP_ERROR_429 = "HTTP 429 Too Many Requests"
