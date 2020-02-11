@@ -1,2 +1,2 @@
-# nytimes-android-mvvm
-nytimes api usage with android mvvm pattern
+# NYTimes NewsReader using new mvvm pattern
+NYTimes api usage with using new android mvvm pattern architecture
