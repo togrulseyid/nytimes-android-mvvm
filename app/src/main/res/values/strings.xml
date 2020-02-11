@@ -5,7 +5,8 @@
     <string name="search_hint">Type to Search</string>
 
     <string name="retry">Retry</string>
-    <string name="article_error">An error occurred while loading NYTimes articles</string>
-    <string name="article_error_code_message">HTTP Too Many Requests, slow down</string>
+    <string name="article_error_code_message">An error occurred while loading NYTimes articles</string>
+    <string name="article_error_code_400">You reached the end of list</string>
+    <string name="article_error_code_429">HTTP Too Many Requests, slow down</string>
 
 </resources>

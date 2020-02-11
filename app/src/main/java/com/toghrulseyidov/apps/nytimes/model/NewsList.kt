@@ -14,7 +14,8 @@ data class NewsList(
     @SerializedName("response")
     val response: Response?,
     @Embedded
-    val meta: Meta?
+    val meta: Meta?,
+    val errors: List<String>?
 )
 
 data class Response(
