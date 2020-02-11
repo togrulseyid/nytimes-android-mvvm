@@ -88,7 +88,15 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
             .concatMap { dbArticleList ->
                 println("dbArticleList.size: ${dbArticleList.size}")
 
-                loader(searchKeyword, isAddArticles) ?: Observable.just(dbArticleList)
+
+                loader(searchKeyword.value.orEmpty(), isAddArticles).concatMap { apiArticles ->
+                    println("apiList.size: ${apiArticles.size}")
+                    if (apiArticles.isEmpty()) {
+                        Observable.just(dbArticleList)
+                    } else {
+                        Observable.just(apiArticles)
+                    }
+                }
 
             }
             .subscribeOn(Schedulers.io())
@@ -120,26 +128,10 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
             )
     }
 
-    private fun loader(searchKeyword: MutableLiveData<String>, isAddArticles: Boolean): Observable<List<Article>>? {
+    private fun loader(searchKeyword: String, isAddArticles: Boolean): Observable<List<Article>> {
         Log.d("REST_CALL_URL", "searchKeyword: $searchKeyword, paginationIndex: $paginationIndex")
-//        if (searchKeyword.value != null) {
-//            return articleApi.getArticles(
-//                searchKeyword.value!!,
-//                paginationIndex,
-//                "newest",
-//                "DdgZsx0tRifDd82nFpxjLiiR8fAF9CFG" // TODO: Move to properties
-//            ).concatMap { apiArticleList ->
-//                if (!isAddArticles) {
-//                    articleDao.removeAll();
-//                }
-//                articleDao.insertAll(*apiArticleList.response!!.docs.toTypedArray())
-//                Observable.just(apiArticleList.response.docs)
-//            }
-//        } else {
-//            return null
-//        }
         return articleApi.getArticles(
-            searchKeyword.value!!,
+            searchKeyword,
             paginationIndex,
             "newest",
             "DdgZsx0tRifDd82nFpxjLiiR8fAF9CFG" // TODO: Move to properties

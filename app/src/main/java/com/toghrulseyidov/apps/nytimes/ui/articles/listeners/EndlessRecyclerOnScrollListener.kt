@@ -27,7 +27,7 @@ abstract class EndlessRecyclerOnScrollListener : RecyclerView.OnScrollListener()
                 previousTotal = totalItemCount
             }
         }
-        val visibleThreshold = 1
+        val visibleThreshold = 3
         if (!loading && totalItemCount - visibleItemCount <= firstVisibleItem + visibleThreshold) {
             // End has been reached
             onLoadMoreArticles()
