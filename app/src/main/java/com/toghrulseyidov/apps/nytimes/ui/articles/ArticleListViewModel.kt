@@ -27,7 +27,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
     val onScrollListener = object :
         EndlessRecyclerOnScrollListener() {
         override fun onLoadMoreArticles() {
-            Log.d("ON_SCROLL_LISTENER", "paginationIndex: " + paginationIndex)
+            Log.d("ON_SCROLL_LISTENER", "paginationIndex: $paginationIndex")
             paginationIndex++
             loadArticlesByKeyword(true)
         }
@@ -37,7 +37,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
 
     val errorMessage: MutableLiveData<Int> = MutableLiveData()
 
-    var searchKeyword: String? = null
+    var searchKeyword: MutableLiveData<String> = MutableLiveData()
 
     var paginationIndex: Int = 0
 
@@ -50,7 +50,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
             Log.d("POX", "text changed: $newText")
             if (newText.length > 2) {
                 paginationIndex = 0
-                searchKeyword = newText
+                searchKeyword.value = newText
                 loadArticlesByKeyword(false)
                 try {
                     Thread.sleep(50)
@@ -64,7 +64,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
         override fun onQueryTextSubmit(query: String): Boolean {
             Log.d("POX", "text submitted: $query")
             paginationIndex = 0
-            searchKeyword = query
+            searchKeyword.value = query
             loadArticlesByKeyword(false)
             return false
         }
@@ -86,16 +86,10 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
         subscription = Observable
             .fromCallable { articleDao.all }
             .concatMap { dbArticleList ->
-                if (dbArticleList.isEmpty()) {
-                    loader(searchKeyword!!)
-                } else {
-                    Observable.just(dbArticleList)
-                    if (searchKeyword != null) {
-                        loader(searchKeyword!!)
-                    } else {
-                        Observable.just(dbArticleList)
-                    }
-                }
+                println("dbArticleList.size: ${dbArticleList.size}")
+
+                loader(searchKeyword, isAddArticles) ?: Observable.just(dbArticleList)
+
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -106,13 +100,14 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
             .doOnTerminate { loadingVisibility.value = View.GONE }
             .subscribe(
                 { result ->
+                    println("result.size: ${result.size}")
                     if (isAddArticles)
                         onAddRetrieveArticleListSuccess(result)
                     else
                         onRetrieveArticleListSuccess(result)
                 },
                 { error ->
-                    if (searchKeyword == null) {
+                    if (searchKeyword.value == null) {
                         loadingVisibility.value = View.GONE
                     } else {
                         onRetrieveArticleListError(error)
@@ -121,17 +116,37 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
             )
     }
 
-    private fun loader(searchKeyword: String): Observable<List<Article>> {
+    private fun loader(searchKeyword: MutableLiveData<String>, isAddArticles: Boolean): Observable<List<Article>>? {
         Log.d("REST_CALL_URL", "searchKeyword: $searchKeyword, paginationIndex: $paginationIndex")
+//        if (searchKeyword.value != null) {
+//            return articleApi.getArticles(
+//                searchKeyword.value!!,
+//                paginationIndex,
+//                "newest",
+//                "DdgZsx0tRifDd82nFpxjLiiR8fAF9CFG" // TODO: Move to properties
+//            ).concatMap { apiArticleList ->
+//                if (!isAddArticles) {
+//                    articleDao.removeAll();
+//                }
+//                articleDao.insertAll(*apiArticleList.response!!.docs.toTypedArray())
+//                Observable.just(apiArticleList.response.docs)
+//            }
+//        } else {
+//            return null
+//        }
         return articleApi.getArticles(
-            searchKeyword,
+            searchKeyword.value!!,
             paginationIndex,
             "newest",
             "DdgZsx0tRifDd82nFpxjLiiR8fAF9CFG" // TODO: Move to properties
         ).concatMap { apiArticleList ->
+            if (!isAddArticles) {
+                articleDao.removeAll();
+            }
             articleDao.insertAll(*apiArticleList.response!!.docs.toTypedArray())
             Observable.just(apiArticleList.response.docs)
         }
+
     }
 
     private fun onRetrieveArticleListSuccess(articleList: List<Article>) {
@@ -145,14 +160,14 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
 
     private fun onRetrieveArticleListError(error: Throwable) {
         errorMessage.value = R.string.article_error_code_message
-        if (error is retrofit2.adapter.rxjava2.HttpException) {
+        if (error is retrofit2.HttpException) {
             val code: Int = error.code()
-            errorMessage.value = when(code){
-                400-> R.string.article_error_code_400
-                429-> R.string.article_error_code_429
-                else-> R.string.article_error_code_message
+            errorMessage.value = when (code) {
+                400 -> R.string.article_error_code_400
+                429 -> R.string.article_error_code_429
+                else -> R.string.article_error_code_message
             }
         }
-//        error.printStackTrace()
+        error.printStackTrace()
     }
 }

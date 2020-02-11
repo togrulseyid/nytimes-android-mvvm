@@ -27,7 +27,6 @@ class ArticleListActivity : AppCompatActivity() {
     private lateinit var viewModel: ArticleListViewModel
     private var errorSnackbar: Snackbar? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -51,7 +50,6 @@ class ArticleListActivity : AppCompatActivity() {
             else
                 hideError()
         })
-//        binding.articleList.addOnScrollListener(viewModel.onScrollListener);
 
         binding.viewModel = viewModel
     }
@@ -65,7 +63,6 @@ class ArticleListActivity : AppCompatActivity() {
     private fun hideError() {
         errorSnackbar?.dismiss()
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.options_menu, menu)
