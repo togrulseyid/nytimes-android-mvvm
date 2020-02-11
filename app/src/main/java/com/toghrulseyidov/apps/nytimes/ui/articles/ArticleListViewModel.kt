@@ -63,7 +63,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
 
         override fun onQueryTextSubmit(query: String): Boolean {
             Log.d("POX", "text submitted: $query")
-            paginationIndex = 200
+            paginationIndex = 0
             searchKeyword = query
             loadArticlesByKeyword(false)
             return false
