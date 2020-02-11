@@ -29,8 +29,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
         override fun onLoadMoreArticles() {
             Log.d("ON_SCROLL_LISTENER", "paginationIndex: " + paginationIndex)
             paginationIndex++
-//            loadArticlesByKeyword(searchKeyword)
-            loadArticlesByKeyword(searchKeyword, true)
+            loadArticlesByKeyword(true)
         }
     }
 
@@ -43,7 +42,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
     var paginationIndex: Int = 0
 
     val errorClickListener =
-        View.OnClickListener { loadArticlesByKeyword(searchKeyword, false) }
+        View.OnClickListener { loadArticlesByKeyword(true) }
 
     val onSearchListener = object : SearchView.OnQueryTextListener {
 
@@ -51,7 +50,8 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
             Log.d("POX", "text changed: $newText")
             if (newText.length > 2) {
                 paginationIndex = 0
-                loadArticlesByKeyword(newText, false)
+                searchKeyword = newText
+                loadArticlesByKeyword(false)
                 try {
                     Thread.sleep(50)
                 } catch (e: Exception) {
@@ -64,7 +64,8 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
         override fun onQueryTextSubmit(query: String): Boolean {
             Log.d("POX", "text submitted: $query")
             paginationIndex = 0
-            loadArticlesByKeyword(query, false)
+            searchKeyword = query
+            loadArticlesByKeyword(false)
             // task HERE
             return false
         }
@@ -73,7 +74,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
     private lateinit var subscription: Disposable
 
     init {
-        loadArticlesByKeyword(null, true)
+        loadArticlesByKeyword(true)
     }
 
     override fun onCleared() {
@@ -81,7 +82,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
         subscription.dispose()
     }
 
-    private fun loadArticlesByKeyword(searchKeyword: String?, isAddArticles: Boolean) {
+    private fun loadArticlesByKeyword(isAddArticles: Boolean) {
         Log.d("POX", "searchKeyword: $searchKeyword $paginationIndex")
         subscription = Observable
             .fromCallable { articleDao.all }
@@ -91,7 +92,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
                 } else {
                     Observable.just(dbArticleList)
                     if (searchKeyword != null) {
-                        loader(searchKeyword)
+                        loader(searchKeyword!!)
                     } else {
                         Observable.just(dbArticleList)
                     }
@@ -113,6 +114,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
                 },
                 { error ->
                     if (searchKeyword == null) {
+                        loadingVisibility.value = View.GONE
                     } else {
                         onRetrieveArticleListError(error)
                     }
@@ -128,15 +130,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
             "newest",
             "DdgZsx0tRifDd82nFpxjLiiR8fAF9CFG" // TODO: Move to properties
         ).concatMap { apiArticleList ->
-            apiArticleList
-                .response!!
-                .docs
-                .toTypedArray()
-                .forEach { article ->
-                    Log.d("POX-X", article.toString())
-                }
-
-            articleDao.insertAll(*apiArticleList.response.docs.toTypedArray())
+            articleDao.insertAll(*apiArticleList.response!!.docs.toTypedArray())
             Observable.just(apiArticleList.response.docs)
         }
     }
@@ -152,15 +146,10 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
 
     private fun onRetrieveArticleListError(error: Throwable) {
         errorMessage.value = R.string.article_error
-
-//        error.printStackTrace()
-
         if (error is retrofit2.adapter.rxjava2.HttpException) {
-            println(error.localizedMessage)
             if (error.message == HTTP_ERROR_429) {
                 errorMessage.value = R.string.article_error_code_message
             }
         }
-//        if(error.localizedMessage)
     }
 }
