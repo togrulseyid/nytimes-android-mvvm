@@ -97,7 +97,10 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
                 loadingVisibility.value = View.VISIBLE
                 errorMessage.value = null
             }
-            .doOnTerminate { loadingVisibility.value = View.GONE }
+            .doOnTerminate {
+                loadingVisibility.value = View.GONE
+                onScrollListener.setLoading(false)
+            }
             .subscribe(
                 { result ->
                     println("result.size: ${result.size}")
@@ -109,6 +112,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
                 { error ->
                     if (searchKeyword.value == null) {
                         loadingVisibility.value = View.GONE
+                        onScrollListener.setLoading(false)
                     } else {
                         onRetrieveArticleListError(error)
                     }

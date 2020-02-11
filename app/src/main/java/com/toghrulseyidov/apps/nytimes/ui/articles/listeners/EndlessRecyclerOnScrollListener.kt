@@ -35,5 +35,14 @@ abstract class EndlessRecyclerOnScrollListener : RecyclerView.OnScrollListener()
         }
     }
 
+    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+        super.onScrollStateChanged(recyclerView, newState)
+        println("loading: $loading")
+    }
+
     abstract fun onLoadMoreArticles()
+
+    fun setLoading(loading: Boolean){
+        this.loading = loading
+    }
 }

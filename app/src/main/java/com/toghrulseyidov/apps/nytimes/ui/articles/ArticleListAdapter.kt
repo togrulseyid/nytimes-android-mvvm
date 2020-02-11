@@ -35,6 +35,7 @@ class ArticleListAdapter() :
     override fun getItemViewType(position: Int): Int {
         return super.getItemViewType(position)
     }
+
     override fun getItemCount(): Int {
         return if (::articleList.isInitialized) {
             articleList.size
@@ -49,6 +50,8 @@ class ArticleListAdapter() :
     }
 
     fun addArticles(list: List<Article>) {
+        if (!::articleList.isInitialized)
+            this.articleList = list.toMutableList()
         this.articleList.addAll(list)
         notifyDataSetChanged()
     }
