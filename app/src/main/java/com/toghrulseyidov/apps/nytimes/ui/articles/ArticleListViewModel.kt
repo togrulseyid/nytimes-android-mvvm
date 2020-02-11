@@ -4,7 +4,6 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.RecyclerView
 import com.toghrulseyidov.apps.nytimes.R
 import com.toghrulseyidov.apps.nytimes.core.CoreViewModel
 import com.toghrulseyidov.apps.nytimes.model.Article
@@ -28,8 +27,10 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
     val onScrollListener = object :
         EndlessRecyclerOnScrollListener() {
         override fun onLoadMoreArticles() {
-            Log.d("POX", "paginationIndex: " + paginationIndex)
-            loadArticlesByKeyword(searchKeyword, paginationIndex++)
+            Log.d("ON_SCROLL_LISTENER", "paginationIndex: " + paginationIndex)
+            paginationIndex++
+//            loadArticlesByKeyword(searchKeyword)
+            loadArticlesByKeyword(searchKeyword, true)
         }
     }
 
@@ -42,14 +43,15 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
     var paginationIndex: Int = 0
 
     val errorClickListener =
-        View.OnClickListener { loadArticlesByKeyword(searchKeyword, paginationIndex) }
+        View.OnClickListener { loadArticlesByKeyword(searchKeyword, false) }
 
     val onSearchListener = object : SearchView.OnQueryTextListener {
 
         override fun onQueryTextChange(newText: String): Boolean {
             Log.d("POX", "text changed: $newText")
             if (newText.length > 2) {
-                loadArticlesByKeyword(newText, paginationIndex)
+                paginationIndex = 0
+                loadArticlesByKeyword(newText, false)
                 try {
                     Thread.sleep(50)
                 } catch (e: Exception) {
@@ -61,7 +63,8 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
 
         override fun onQueryTextSubmit(query: String): Boolean {
             Log.d("POX", "text submitted: $query")
-            loadArticlesByKeyword(query, paginationIndex)
+            paginationIndex = 0
+            loadArticlesByKeyword(query, false)
             // task HERE
             return false
         }
@@ -70,7 +73,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
     private lateinit var subscription: Disposable
 
     init {
-        loadArticlesByKeyword(null, 0)
+        loadArticlesByKeyword(null, true)
     }
 
     override fun onCleared() {
@@ -78,7 +81,7 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
         subscription.dispose()
     }
 
-    private fun loadArticlesByKeyword(searchKeyword: String?, paginationIndex: Int) {
+    private fun loadArticlesByKeyword(searchKeyword: String?, isAddArticles: Boolean) {
         Log.d("POX", "searchKeyword: $searchKeyword $paginationIndex")
         subscription = Observable
             .fromCallable { articleDao.all }
@@ -102,12 +105,23 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
             }
             .doOnTerminate { loadingVisibility.value = View.GONE }
             .subscribe(
-                { result -> onRetrieveArticleListSuccess(result) },
-                { error -> onRetrieveArticleListError(error) }
+                { result ->
+                    if (isAddArticles)
+                        onAddRetrieveArticleListSuccess(result)
+                    else
+                        onRetrieveArticleListSuccess(result)
+                },
+                { error ->
+                    if (searchKeyword == null) {
+                    } else {
+                        onRetrieveArticleListError(error)
+                    }
+                }
             )
     }
 
     private fun loader(searchKeyword: String): Observable<List<Article>> {
+        Log.d("REST_CALL_URL", "searchKeyword: $searchKeyword, paginationIndex: $paginationIndex")
         return articleApi.getArticles(
             searchKeyword,
             paginationIndex,
@@ -129,6 +143,11 @@ class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel()
 
     private fun onRetrieveArticleListSuccess(articleList: List<Article>) {
         articleListAdapter.updateArticleList(articleList)
+    }
+
+
+    private fun onAddRetrieveArticleListSuccess(articleList: List<Article>) {
+        articleListAdapter.addArticles(articleList)
     }
 
     private fun onRetrieveArticleListError(error: Throwable) {
