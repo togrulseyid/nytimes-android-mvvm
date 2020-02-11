@@ -10,7 +10,7 @@ interface ArticleDao {
     @get:Query("SELECT * FROM articles")
     val all: List<Article>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg article: Article)
 
 }

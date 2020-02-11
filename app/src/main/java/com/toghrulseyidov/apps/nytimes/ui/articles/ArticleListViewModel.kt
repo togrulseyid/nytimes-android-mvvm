@@ -1,66 +1,71 @@
 package com.toghrulseyidov.apps.nytimes.ui.articles
 
-import android.content.res.Resources
 import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.RecyclerView
 import com.toghrulseyidov.apps.nytimes.R
 import com.toghrulseyidov.apps.nytimes.core.CoreViewModel
 import com.toghrulseyidov.apps.nytimes.model.Article
 import com.toghrulseyidov.apps.nytimes.model.ArticleDao
 import com.toghrulseyidov.apps.nytimes.network.ArticleApi
+import com.toghrulseyidov.apps.nytimes.ui.articles.listeners.EndlessRecyclerOnScrollListener
 import com.toghrulseyidov.apps.nytimes.utils.HTTP_ERROR_429
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.lang.Exception
 import javax.inject.Inject
 
-class ArticleListViewModel(private val articleDao: ArticleDao) :
-    CoreViewModel() {
+class ArticleListViewModel(private val articleDao: ArticleDao) : CoreViewModel() {
 
     @Inject
     lateinit var articleApi: ArticleApi
 
     val articleListAdapter: ArticleListAdapter = ArticleListAdapter()
 
+    val onScrollListener = object :
+        EndlessRecyclerOnScrollListener() {
+        override fun onLoadMoreArticles() {
+            Log.d("POX", "paginationIndex: " + paginationIndex)
+            loadArticlesByKeyword(searchKeyword, paginationIndex++)
+        }
+    }
+
     val loadingVisibility: MutableLiveData<Int> = MutableLiveData()
 
     val errorMessage: MutableLiveData<Int> = MutableLiveData()
 
     var searchKeyword: String? = null
-//    val searchKeyword: MutableLiveData<String> = MutableLiveData()
 
     var paginationIndex: Int = 0
 
     val errorClickListener =
         View.OnClickListener { loadArticlesByKeyword(searchKeyword, paginationIndex) }
 
-    val onSearchListener =
-        object : SearchView.OnQueryTextListener {
+    val onSearchListener = object : SearchView.OnQueryTextListener {
 
-            override fun onQueryTextChange(newText: String): Boolean {
-                Log.d("POX", "text changed: $newText")
-                if (newText.length > 2) {
-                    loadArticlesByKeyword(newText, paginationIndex)
-                    try {
-                        Thread.sleep(50)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+        override fun onQueryTextChange(newText: String): Boolean {
+            Log.d("POX", "text changed: $newText")
+            if (newText.length > 2) {
+                loadArticlesByKeyword(newText, paginationIndex)
+                try {
+                    Thread.sleep(50)
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-                return false
             }
-
-            override fun onQueryTextSubmit(query: String): Boolean {
-                Log.d("POX", "text submitted: $query")
-                loadArticlesByKeyword(query, paginationIndex)
-                // task HERE
-                return false
-            }
+            return false
         }
+
+        override fun onQueryTextSubmit(query: String): Boolean {
+            Log.d("POX", "text submitted: $query")
+            loadArticlesByKeyword(query, paginationIndex)
+            // task HERE
+            return false
+        }
+    }
 
     private lateinit var subscription: Disposable
 
@@ -75,7 +80,6 @@ class ArticleListViewModel(private val articleDao: ArticleDao) :
 
     private fun loadArticlesByKeyword(searchKeyword: String?, paginationIndex: Int) {
         Log.d("POX", "searchKeyword: $searchKeyword $paginationIndex")
-
         subscription = Observable
             .fromCallable { articleDao.all }
             .concatMap { dbArticleList ->
@@ -125,11 +129,6 @@ class ArticleListViewModel(private val articleDao: ArticleDao) :
 
     private fun onRetrieveArticleListSuccess(articleList: List<Article>) {
         articleListAdapter.updateArticleList(articleList)
-        Log.d("POX", "onRetrieveArticleListSuccess: ${articleList.size}")
-        articleList.forEach {
-            println("onRetrieveArticleListSuccess: $it")
-        }
-//        paginationIndex++
     }
 
     private fun onRetrieveArticleListError(error: Throwable) {

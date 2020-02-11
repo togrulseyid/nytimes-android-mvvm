@@ -86,6 +86,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:3.2.4'
     testImplementation 'com.squareup.retrofit2:retrofit-mock:2.3.0'
 
+    //Pagination
     implementation "androidx.paging:paging-runtime:2.1.1"
 
 

@@ -1,7 +1,6 @@
 package com.toghrulseyidov.apps.nytimes.utils
 
 import android.content.ContextWrapper
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -10,9 +9,9 @@ import androidx.databinding.BindingAdapter
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import com.toghrulseyidov.apps.nytimes.R
+import com.toghrulseyidov.apps.nytimes.ui.articles.listeners.EndlessRecyclerOnScrollListener
 
 
 @BindingAdapter("adapter")
@@ -54,6 +53,18 @@ fun loadImage(view: ImageView, url: MutableLiveData<String>?) {
         view.visibility = View.INVISIBLE
     }
 }
+
+
+@BindingAdapter("bind:scrollTo")
+fun scrollTo(recyclerView: RecyclerView, position: Int) {
+    recyclerView.scrollToPosition(position)
+}
+
+@BindingAdapter("bind:addScrollListener")
+fun addScrollListener(recyclerView: RecyclerView, onScrollListener: EndlessRecyclerOnScrollListener) {
+    recyclerView  .addOnScrollListener(onScrollListener);
+}
+
 
 fun View.getParentActivity(): AppCompatActivity? {
     var context = this.context

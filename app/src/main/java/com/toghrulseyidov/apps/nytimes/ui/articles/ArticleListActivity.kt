@@ -5,40 +5,33 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
-import androidx.appcompat.widget.SearchView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.toghrulseyidov.apps.nytimes.R
 import com.toghrulseyidov.apps.nytimes.databinding.ActivityArticleListBinding
+import com.toghrulseyidov.apps.nytimes.ui.articles.listeners.EndlessRecyclerOnScrollListener
 
 
-class ArticleListActivity : AppCompatActivity() {//}, SwipeRefreshLayout.OnRefreshListener{
+class ArticleListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityArticleListBinding
     private lateinit var viewModel: ArticleListViewModel
     private var errorSnackbar: Snackbar? = null
-
-//    private val lastVisibleItemPosition: Int
-//        get() = binding.articleList.layoutManager.findLastVisibleItemPosition()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_article_list)
-
-//        supportActionBar!!.setDisplayHomeAsUpEnabled(false)
-//        supportActionBar!!.setDisplayShowTitleEnabled(false)
-
-
         binding.articleList.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
@@ -48,47 +41,8 @@ class ArticleListActivity : AppCompatActivity() {//}, SwipeRefreshLayout.OnRefre
             itemDecor.setDrawable(dividerDrawable)
         binding.articleList.addItemDecoration(itemDecor)
 
-
-//        binding.articleSwipeRefresh.isRefreshing =true
-        binding.articleSwipeRefresh.setOnRefreshListener(SwipeRefreshLayout.OnRefreshListener {
-            binding.articleSwipeRefresh.isRefreshing = false
-        })
-
-
-//        binding.articleList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-//                super.onScrollStateChanged(recyclerView, newState)
-//                val totalItemCount = recyclerView.layoutManager!!.itemCount
-//                if (!imageRequester.isLoadingData && totalItemCount == lastVisibleItemPosition + 1) {
-//                    requestPhoto()
-//                }
-//            }
-//        })
-//
-//        binding.articleList.addOnScrollListener(
-//            object :  PaginationListener(binding.articleList.layoutManager) {
-//                override
-//                void loadMoreItems () {
-//                    isLoading = true;
-//                    currentPage++;
-//                    doApiCall();
-//                }
-//
-//                override boolean isLastPage() {
-//                    return isLastPage;
-//                }
-//
-//                override boolean isLoading() {
-//                    return isLoading;
-//                }
-//            })
-
-
         viewModel =
-            ViewModelProviders.of(
-                this,
-                ViewModelFactory(this)
-            )
+            ViewModelProviders.of(this, ViewModelFactory(this))
                 .get(ArticleListViewModel::class.java)
 
         viewModel.errorMessage.observe(this, Observer { errorMessage ->
@@ -97,6 +51,7 @@ class ArticleListActivity : AppCompatActivity() {//}, SwipeRefreshLayout.OnRefre
             else
                 hideError()
         })
+//        binding.articleList.addOnScrollListener(viewModel.onScrollListener);
 
         binding.viewModel = viewModel
     }
